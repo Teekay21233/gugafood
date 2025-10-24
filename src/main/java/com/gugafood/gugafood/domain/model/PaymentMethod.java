@@ -3,12 +3,11 @@ package com.gugafood.gugafood.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.math.BigDecimal;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-public class Restaurant {
+public class PaymentMethod {
 
     @Id
     @EqualsAndHashCode.Include
@@ -16,15 +15,7 @@ public class Restaurant {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String description;
 
-    @Column(nullable = false)
-    private BigDecimal taxaFrete;
 
-    @ManyToOne
-    @JoinColumn(name = "kitchen_id",nullable = false)
-    private Kitchen kitchen;
-
-    @ManyToOne
-    private PaymentMethod paymentMethod;
 }

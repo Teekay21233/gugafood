@@ -1,29 +1,29 @@
-package com.gugafood.gugafood.jpa;
+package com.gugafood.gugafood.jpa.restaurant;
 
 import com.gugafood.gugafood.GugafoodApplication;
-import com.gugafood.gugafood.domain.model.Kitchen;
-import com.gugafood.gugafood.domain.repository.KitchenRepository;
+import com.gugafood.gugafood.domain.model.Restaurant;
+import com.gugafood.gugafood.domain.repository.RestaurantRepository;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 
-public class AtualizacaoCozinhaMain {
+public class AtualizacaoRestauranteMain {
     public static void main(String[] args) {
         ApplicationContext applicationContext = new SpringApplicationBuilder(GugafoodApplication.class)
                 .web(WebApplicationType.NONE)
                 .run(args);
 
-       KitchenRepository kr = applicationContext.getBean(KitchenRepository.class);
+       RestaurantRepository rr = applicationContext.getBean(RestaurantRepository.class);
 
-        Kitchen kitchen1 = new Kitchen();
-        kitchen1.setId(1L);
-        kitchen1.setName("Brasileira");
+        Restaurant restaurant1 = new Restaurant();
+        restaurant1.setId(1L);
+        restaurant1.setName("Aloha");
 
-        kr.update(kitchen1);
+        rr.update(restaurant1);
 
-        List<Kitchen> kitchens = kr.list();
+        List<Restaurant> kitchens = rr.list();
         kitchens.forEach(kitchen -> System.out.println(kitchen.getId() + " - " + kitchen.getName()));
 
     }
