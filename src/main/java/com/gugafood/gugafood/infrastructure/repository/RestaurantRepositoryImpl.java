@@ -1,13 +1,12 @@
 package com.gugafood.gugafood.infrastructure.repository;
 
-import com.gugafood.gugafood.domain.model.Kitchen;
 import com.gugafood.gugafood.domain.model.Restaurant;
-import com.gugafood.gugafood.domain.repository.KitchenRepository;
 import com.gugafood.gugafood.domain.repository.RestaurantRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -44,8 +43,13 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
 
     @Override
     @Transactional
-    public void delete(Restaurant restaurant){
-        restaurant = findById(restaurant.getId());
+    public void delete(Long id){
+       Restaurant restaurant = findById(id);
+
+        if (restaurant == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+
         manager.remove(restaurant);
     }
 }
