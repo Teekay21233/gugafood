@@ -9,5 +9,5 @@ public interface CityRepository {
     City findById(Long id);
     City add(City city);
     City update(City city);
-    void delete(City city);
+    void delete(Long id);
 }

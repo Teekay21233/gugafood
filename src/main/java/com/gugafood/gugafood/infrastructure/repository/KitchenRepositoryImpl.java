@@ -38,6 +38,7 @@ public class KitchenRepositoryImpl implements KitchenRepository {
     @Override
     @Transactional
     public Kitchen update(Kitchen kitchen){
+
         return add(kitchen);
     }
 

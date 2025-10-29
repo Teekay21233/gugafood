@@ -64,6 +64,7 @@ public class KitchenController {
     @PostMapping
     public ResponseEntity<Kitchen> add(@RequestBody Kitchen kitchen) {
 
+
       kitchen = kitchenRegisterService.add(kitchen);
 
       URI location = ServletUriComponentsBuilder
@@ -77,22 +78,9 @@ public class KitchenController {
 
     @PutMapping("{id}")
     public ResponseEntity<Kitchen> update(@PathVariable Long id,@RequestBody Kitchen kitchen) {
+            kitchenRegisterService.update(kitchen);
 
-       Kitchen kitchen1 = kitchenRepository.findById(id);
-
-
-
-        if (kitchen1 != null) {
-
-    //      kitchen1.setName(kitchen.getName());
-            BeanUtils.copyProperties(kitchen,kitchen1,"id");
-
-            kitchenRegisterService.update(kitchen1);
-
-            return ResponseEntity.ok(kitchen1);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.ok(kitchen);
     }
 
     @DeleteMapping("{id}")

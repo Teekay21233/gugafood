@@ -24,7 +24,4 @@ public class Restaurant {
     @ManyToOne
     @JoinColumn(name = "kitchen_id",nullable = false)
     private Kitchen kitchen;
-
-    @ManyToOne
-    private PaymentMethod paymentMethod;
 }

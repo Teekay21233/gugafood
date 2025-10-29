@@ -20,7 +20,7 @@ public class RemocaoRestauranteMain {
         Restaurant restaurant = new Restaurant();
         restaurant.setId(1L);
 
-        rr.delete(restaurant);
+        rr.delete(1L);
 
         List<Restaurant> restaurants = rr.list();
         restaurants.forEach(Restaurant -> System.out.println(restaurant.getId() + " - " + restaurant.getName()));
