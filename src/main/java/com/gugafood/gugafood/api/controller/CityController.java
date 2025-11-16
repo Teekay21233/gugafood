@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cities")
@@ -27,16 +28,16 @@ public class CityController {
 
     @GetMapping
     public List<City> list() {
-        return cityRepository.list();
+        return cityRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<City> findById(@PathVariable Long id) {
 
-        City city = cityRepository.findById(id);
+      Optional<City> city = cityRepository.findById(id);
 
-        if (city != null) {
-            return ResponseEntity.ok(city);
+        if (city.isPresent()) {
+            return ResponseEntity.ok(city.get());
         }
 
         return ResponseEntity.notFound().build();
@@ -57,22 +58,16 @@ public class CityController {
 
     @PutMapping("/{id}")
     public ResponseEntity<City> update(@PathVariable Long id, @RequestBody City city) {
+        Optional<City> newCity = cityRepository.findById(id);
 
-        try {
-            City city1 = cityRepository.findById(id);
+        if (newCity.isPresent()){
+            BeanUtils.copyProperties(city,newCity.get(),"id");
 
-            if (city == null){
-                throw new EntityNotFoundException(
-                        String.format("City with id %d does not exist",id)
-                );
-            }
-
-            BeanUtils.copyProperties(city,city1,"id");
-
-            return ResponseEntity.ok(city1);
-        }catch (EntityNotFoundException e){
-            return ResponseEntity.notFound().build();
+            City updatedCity = cityRegisterService.update(newCity.get());
+            return ResponseEntity.ok(updatedCity);
         }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

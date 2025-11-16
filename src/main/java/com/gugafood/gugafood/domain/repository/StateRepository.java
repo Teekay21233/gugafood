@@ -1,13 +1,10 @@
 package com.gugafood.gugafood.domain.repository;
 
 import com.gugafood.gugafood.domain.model.State;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface StateRepository {
-    List<State> list();
-    State findById(Long id);
-    State add(State state);
-    State update(State state);
-    void delete(Long id);
+public interface StateRepository extends JpaRepository<State,Long> {
+
 }

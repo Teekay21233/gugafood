@@ -12,6 +12,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class RestaurantRegisterService {
 
@@ -23,45 +25,33 @@ public class RestaurantRegisterService {
 
     public Restaurant add(Restaurant restaurant) {
         Long kitchenId = restaurant.getKitchen().getId();
-        Kitchen kitchen = kitchenRepository.findById(kitchenId);
-
-        if (kitchen == null) {
-            throw new EntityNotFoundException(
-                    String.format("Kitchen with id %d does not exist", kitchenId)
-            );
-        }
+        Kitchen kitchen = kitchenRepository.findById(kitchenId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                String.format("Kitchen with id %d does not exist", kitchenId)
+        ));
 
         restaurant.setKitchen(kitchen);
 
-        return restaurantRepository.add(restaurant);
+        return restaurantRepository.saveAndFlush(restaurant);
     }
 
     public Restaurant update(Restaurant restaurant) {
-        Restaurant restaurant1 = restaurantRepository.findById(restaurant.getId());
-
-        if (restaurant1 == null) {
-            throw new EntityNotFoundException(
-                    String.format("Restaurant with id %d does not exist", restaurant.getId())
-            );
-        } else {
-
-            BeanUtils.copyProperties(restaurant, restaurant1, "id");
-            return restaurantRepository.update(restaurant1);
-        }
+       return restaurantRepository.save(restaurant);
     }
 
     public void delete(Long id) {
-        try {
-            restaurantRepository.delete(id);
-        } catch (EmptyResultDataAccessException e) {
+        if (!restaurantRepository.existsById(id)){
             throw new EntityNotFoundException(
                     String.format("Restaurant with id %d does not exist!", id)
             );
+        }
+
+        try {
+            restaurantRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new EntityInUseException(
                     String.format("Restaurant with id %d cannot be removed because it's in use", id)
             );
         }
-
     }
 }

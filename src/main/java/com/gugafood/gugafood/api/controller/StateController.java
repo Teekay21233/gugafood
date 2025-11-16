@@ -15,6 +15,7 @@
 
     import java.net.URI;
     import java.util.List;
+    import java.util.Optional;
 
     @RestController
     @RequestMapping("/states")
@@ -28,11 +29,17 @@
 
         @GetMapping
         public List<State> list() {
-            return stateRepository.list();
+            return stateRepository.findAll();
         }
+
         @GetMapping("/{id}")
-        public State findById(@PathVariable Long id) {
-            return stateRepository.findById(id);
+        public ResponseEntity<State> findById(@PathVariable Long id) {
+            Optional<State> state = stateRepository.findById(id);
+
+            if (state.isPresent()){
+                return ResponseEntity.ok(state.get());
+            }
+            return ResponseEntity.notFound().build();
         }
 
         @PostMapping
@@ -50,22 +57,19 @@
 
         @PutMapping("{id}")
         public ResponseEntity<?> update(@PathVariable Long id, @RequestBody State state){
-            try {
-                State state1 = stateRepository.findById(id);
 
-                if (state1 != null){
+               Optional<State> newState = stateRepository.findById(id);
 
-                    BeanUtils.copyProperties(state,state1,"id");
+                if (newState.isPresent()){
 
-                    stateRegisterService.update(state1);
+                    BeanUtils.copyProperties(state,newState.get(),"id");
 
-                    return ResponseEntity.ok(state1);
+                    stateRegisterService.update(newState.get());
+
+                    return ResponseEntity.ok(newState.get());
                 }else {
                     return ResponseEntity.notFound().build();
                 }
-            }catch (EntityNotFoundException e){
-                return ResponseEntity.notFound().build();
-            }
         }
 
         @DeleteMapping("{id}")

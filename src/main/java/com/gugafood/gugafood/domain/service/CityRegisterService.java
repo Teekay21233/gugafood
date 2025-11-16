@@ -16,16 +16,24 @@ public class CityRegisterService {
     private CityRepository cityRepository;
 
     public City add(City city){
-        return cityRepository.add(city);
+        return cityRepository.save(city);
     }
 
     public City update(City city){
-        return cityRepository.update(city);
+        return cityRepository.save(city);
     }
 
     public void delete(Long id){
+
+        if (!cityRepository.existsById(id)){
+            throw new EntityNotFoundException(
+                    String.format("Kitchen with id %d cannot be removed because it does not exist",id)
+            );
+        }
+
         try {
-            cityRepository.delete(id);
+            cityRepository.deleteById(id);
+            cityRepository.flush();
         }catch (EmptyResultDataAccessException e){
             throw new EntityNotFoundException(
                     String.format("City with id %d does not exist!",id)

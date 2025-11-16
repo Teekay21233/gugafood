@@ -4,6 +4,7 @@ import com.gugafood.gugafood.domain.exception.EntityInUseException;
 import com.gugafood.gugafood.domain.exception.EntityNotFoundException;
 import com.gugafood.gugafood.domain.model.Kitchen;
 import com.gugafood.gugafood.domain.repository.KitchenRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,26 +17,28 @@ public class KitchenRegisterService {
     private KitchenRepository kitchenRepository;
 
     public Kitchen add(Kitchen kitchen) {
-        return kitchenRepository.add(kitchen);
+        return kitchenRepository.save(kitchen);
     }
 
     public Kitchen update(Kitchen kitchen) {
-        return kitchenRepository.update(kitchen);
+        return kitchenRepository.save(kitchen);
     }
 
+    @Transactional
     public void delete(Long id){
-        try {
-            kitchenRepository.delete(id);
-        }catch (EmptyResultDataAccessException e){
+        if (!kitchenRepository.existsById(id)){
             throw new EntityNotFoundException(
-                    String.format("Kitchen with id %d does not exist!",id)
+                    String.format("Kitchen with id %d cannot be removed because it does not exist",id)
             );
         }
-        catch (DataIntegrityViolationException e) {
+
+        try {
+            kitchenRepository.deleteById(id);
+            kitchenRepository.flush();
+        } catch (DataIntegrityViolationException e) {
             throw new EntityInUseException(
                     String.format("Kitchen with id %d cannot be removed because it's in use",id)
             );
         }
-
     }
 }

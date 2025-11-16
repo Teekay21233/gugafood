@@ -5,6 +5,7 @@ import com.gugafood.gugafood.domain.exception.EntityNotFoundException;
 import com.gugafood.gugafood.domain.model.Kitchen;
 import com.gugafood.gugafood.domain.repository.KitchenRepository;
 import com.gugafood.gugafood.domain.service.KitchenRegisterService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/kitchens")
@@ -26,7 +28,7 @@ public class KitchenController {
 
     @GetMapping
     public List<Kitchen> list() {
-        return kitchenRepository.list();
+        return kitchenRepository.findAll();
     }
 
 //    @GetMapping("/{id}")
@@ -46,13 +48,12 @@ public class KitchenController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Kitchen> findById(@PathVariable Long id) {
-        Kitchen kitchen = kitchenRepository.findById(id);
+       Optional<Kitchen> kitchen = kitchenRepository.findById(id);
 
-        if (kitchen != null) {
-            return ResponseEntity.ok(kitchen);
+        if (kitchen.isPresent()) {
+            return ResponseEntity.ok(kitchen.get());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
     }
 
 //    @PostMapping
@@ -78,9 +79,16 @@ public class KitchenController {
 
     @PutMapping("{id}")
     public ResponseEntity<Kitchen> update(@PathVariable Long id,@RequestBody Kitchen kitchen) {
-            kitchenRegisterService.update(kitchen);
+           Optional<Kitchen> newKitchen = kitchenRepository.findById(id);
 
-            return ResponseEntity.ok(kitchen);
+           if (newKitchen.isPresent()){
+               BeanUtils.copyProperties(kitchen,newKitchen.get(),"id");
+
+              Kitchen updatedKitchen = kitchenRegisterService.update(newKitchen.get());
+              return ResponseEntity.ok(updatedKitchen);
+           }
+
+            return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("{id}")
@@ -90,10 +98,10 @@ public class KitchenController {
           kitchenRegisterService.delete(id);
 
           return ResponseEntity.noContent().build();
-        }catch (EntityInUseException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }catch (EntityInUseException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 }

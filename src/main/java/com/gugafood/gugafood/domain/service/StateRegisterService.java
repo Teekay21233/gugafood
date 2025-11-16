@@ -7,7 +7,10 @@ import com.gugafood.gugafood.domain.repository.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class StateRegisterService {
@@ -16,35 +19,35 @@ public class StateRegisterService {
     private StateRepository stateRepository;
 
     public State add(State state) {
-        return stateRepository.add(state);
+        return stateRepository.save(state);
     }
 
     public State update(State state) {
 
-        State state1 = stateRepository.findById(state.getId());
+       Optional<State> newState = stateRepository.findById(state.getId());
 
-        if (state1 == null) {
+        if (newState.isEmpty()) {
             throw new EntityNotFoundException(
                     String.format("State with id %d does not exist!", state.getId())
             );
         }
-        return stateRepository.update(state);
+        return stateRepository.save(newState.get());
     }
 
     public void delete(Long id) {
-        try {
-            stateRepository.delete(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(
-                    String.format("State with id %d does not exist!", id)
-            );
+      if(!stateRepository.existsById(id)){
+          throw new EntityNotFoundException(
+                  String.format("Kitchen with id %d cannot be removed because it does not exist",id)
+          );
+      }
 
-
-        } catch (DataIntegrityViolationException e) {
-
-            throw new EntityInUseException(
-                    String.format("State with id %d cannot be removed because it's in use", id)
-            );
-        }
+      try{
+          stateRepository.deleteById(id);
+          stateRepository.flush();
+      }catch (DataIntegrityViolationException e){
+          throw new EntityInUseException(
+                  String.format("Kitchen with id %d cannot be removed because it's in use",id)
+          );
+      }
     }
 }
